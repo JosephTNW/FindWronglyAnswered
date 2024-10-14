@@ -14,16 +14,14 @@ const FileInput = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      Papa.parse(file, {
+      Papa.parse<ParsedData>(file, {
         header: true,
         skipEmptyLines: true,
-        complete: (results: Papa.ParseResult<ParsedData>, file: File) => {
-            console.log('Parsing complete:', results, file);
-
+        complete: (results: Papa.ParseResult<ParsedData>) => {
             const end_result: EndResult[] = [];
             
-            results.data.map((row) => {
-                const questionColumns = Object.keys(row).filter(key => key.includes('Q'));
+            results.data.forEach(row => {
+              const questionColumns = Object.keys(row).filter(key => key.includes('Q'));
                 const zeroValueQuestions = questionColumns
                     .filter(column => row[column] == 0)
                     .map(column => column.replace('Q. ', '').replace(/ \/[\d.]+$/, ''));
@@ -33,7 +31,7 @@ const FileInput = () => {
                     name: name,
                     wronglyAnswered: zeroValueQuestions
                 });
-            });
+            });                
 
             const csv = Papa.unparse(end_result);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -45,8 +43,8 @@ const FileInput = () => {
             link.click();
             document.body.removeChild(link);
         },
-        error: (error: Papa.ParseError, file: File) => {
-          console.log("Parsing error:", error, file);
+        error: (error: Error) => {
+          console.error(error);
         },
       });
     }
