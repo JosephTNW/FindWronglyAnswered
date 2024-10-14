@@ -5,6 +5,11 @@ interface ParsedData {
   [key: string]: string | number; // Generic object type
 }
 
+interface EndResult {
+    name: string;
+    wronglyAnswered: string[];
+}
+
 const FileInput = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -13,7 +18,9 @@ const FileInput = () => {
         header: true,
         skipEmptyLines: true,
         complete: (results: Papa.ParseResult<ParsedData>, file: File) => {
-            let end_result = [];
+            console.log('Parsing complete:', results, file);
+
+            const end_result: EndResult[] = [];
             
             results.data.map((row) => {
                 const questionColumns = Object.keys(row).filter(key => key.includes('Q'));
